@@ -22,6 +22,62 @@ public class WoT {
 
     }
 
+    private int getNextGroup(Match match, int i, int teamNumber) {
+        for (;i<eloGroups.size(); i++) {
+
+        }
+    }
+
+    private Match findMatch() {
+        //TODO optimize this to generate less junk teams
+        ArrayList<ArrayList<EloGroup>> subsets = new ArrayList<>();
+
+        ArrayList<Integer> indexes = new ArrayList<>();
+        int i = 0;
+        for (;;) {
+            indexes.add(getNextGroup(i));
+        }
+
+        /*for (int l=4; l>0; l--) {
+            int[] s = new int[l];                  // here we'll keep indices
+            // pointing to elements in input array
+
+            if (l <= eloGroups.size()) {
+                countTeams++;
+                // first index sequence: 0, 1, 2, ...
+                for (int i = 0; (s[i] = i) < l - 1; i++);
+                {
+                    ArrayList<EloGroup> tempList = getSubset(eloGroups, s);
+                    if (tempList != null) subsets.add(tempList);
+                }
+                for(;;) {
+                    countTeams++;
+                    int i;
+                    // find position of item that can be incremented
+                    for (i = l - 1; i >= 0 && s[i] == eloGroups.size() - l - 1 + i; i--);
+                    if (i < 0) {
+                        break;
+                    } else {
+                        s[i]++;                    // increment this item
+                        for (++i; i < l; i++) {    // fill up remaining items
+                            s[i] = s[i - 1] + 1;
+                        }
+                        ArrayList<EloGroup> tempList = getSubset(eloGroups, s);
+                        if (tempList != null && !subsets.contains(tempList)) {
+                            Match match = findMatch(subsets, tempList);
+                            if (match != null) {
+                                return match;
+                            }
+                            subsets.add(tempList);
+                        }
+                    }
+                }
+            }
+        }*/
+
+        return null;
+    }
+
     private Match findBestMatch(ArrayList<ArrayList<EloGroup>> allCombinations, ArrayList<EloGroup> currentGroup) {
         Match bestMatch = null;
         double closestRating = 999999;
@@ -36,8 +92,11 @@ public class WoT {
                     continue outer;
                 }
             }
-            Match currentMatch = new Match(currentList, currentGroup);
             countMatches++;
+            Match currentMatch = new Match(currentList, currentGroup);
+            if (!currentMatch.hasValidMakeup()) {
+                continue;
+            }
             if (currentMatch.getAbsRatingDifference() < closestRating) {
                 if (currentMatch.getAbsRatingDifference() < tolerance) {
                     return currentMatch;
@@ -214,6 +273,13 @@ public class WoT {
             }
 
             return true;
+        }
+        public boolean hasValidMakeup(int teamNumber) {
+            ArrayList<EloGroup> currentTeam = teamNumber == 1 ? team1 : team2;
+            int[] types1 = countTypes(currentTeam);
+            if (types1[4] > 4) {
+                return false;
+            }
         }
 
         private int[] countTypes(ArrayList<EloGroup> groups) {

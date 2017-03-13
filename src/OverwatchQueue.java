@@ -13,7 +13,7 @@ public class OverwatchQueue {
 
     private void randJSONArray() {
         String arr = "[";
-        int randLength = 50;
+        int randLength = 80;
         System.out.println(randLength);
         for (int i=0;i<randLength; i++) {
             double rand = Math.random();
@@ -62,7 +62,7 @@ public class OverwatchQueue {
             "]");
     private static int countMatches = 0;
     private static int countTeams = 0;
-    private static int tolerance = 10;
+    private static int tolerance = 40;
 
     public OverwatchQueue() {
         randJSONArray();
@@ -130,7 +130,7 @@ public class OverwatchQueue {
         ArrayList<ArrayList<EloGroup>> subsets = new ArrayList<>();
 
         //TODO bump this back up to 6 for teams of 6 solo
-        for (int l=5; l>0; l--) {
+        for (int l=4; l>0; l--) {
             int[] s = new int[l];                  // here we'll keep indices
             // pointing to elements in input array
 
