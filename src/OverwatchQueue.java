@@ -13,7 +13,7 @@ public class OverwatchQueue {
 
     private void randJSONArray() {
         String arr = "[";
-        int randLength = 36;
+        int randLength = 50;
         System.out.println(randLength);
         for (int i=0;i<randLength; i++) {
             double rand = Math.random();
@@ -61,6 +61,7 @@ public class OverwatchQueue {
             "[1493,1307]" +
             "]");
     private static int countMatches = 0;
+    private static int countTeams = 0;
     private static int tolerance = 10;
 
     public OverwatchQueue() {
@@ -92,6 +93,7 @@ public class OverwatchQueue {
         }
         System.out.println("Team 2 (" + match.getTeamAverage(2) + "): " + msg);
         System.out.println("Matches attempted: " + NumberFormat.getNumberInstance().format(countMatches));
+        System.out.println("Teams attempted: " + NumberFormat.getNumberInstance().format(countTeams));
     }
 
     private Match findMatch(ArrayList<ArrayList<EloGroup>> allCombinations, ArrayList<EloGroup> currentGroup) {
@@ -124,13 +126,16 @@ public class OverwatchQueue {
 
     private Match getBestMatch(ArrayList<EloGroup> processedEloGroups) {
 
+        //TODO optimize this to generate less junk teams
         ArrayList<ArrayList<EloGroup>> subsets = new ArrayList<>();
 
-        for (int l=6; l>0; l--) {
+        //TODO bump this back up to 6 for teams of 6 solo
+        for (int l=5; l>0; l--) {
             int[] s = new int[l];                  // here we'll keep indices
             // pointing to elements in input array
 
             if (l <= processedEloGroups.size()) {
+                countTeams++;
                 // first index sequence: 0, 1, 2, ...
                 for (int i = 0; (s[i] = i) < l - 1; i++);
                 {
@@ -138,6 +143,7 @@ public class OverwatchQueue {
                     if (tempList != null) subsets.add(tempList);
                 }
                 for(;;) {
+                    countTeams++;
                     int i;
                     // find position of item that can be incremented
                     for (i = l - 1; i >= 0 && s[i] == processedEloGroups.size() - l - 1 + i; i--);
