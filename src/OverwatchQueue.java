@@ -13,7 +13,7 @@ public class OverwatchQueue {
 
     private void randJSONArray() {
         String arr = "[";
-        int randLength = 25;
+        int randLength = 36;
         System.out.println(randLength);
         for (int i=0;i<randLength; i++) {
             double rand = Math.random();
@@ -72,7 +72,7 @@ public class OverwatchQueue {
             processedEloGroups.add(new EloGroup((JSONArray) eloGroup));
         }
 
-        Match match = findBestMatch(processedEloGroups);
+        Match match = getBestMatch(processedEloGroups);
         if (match == null) {
             System.out.println("No matches found");
             return;
@@ -94,23 +94,21 @@ public class OverwatchQueue {
         System.out.println("Matches attempted: " + NumberFormat.getNumberInstance().format(countMatches));
     }
 
-    private Match findBestMatch(ArrayList<EloGroup> processedEloGroups) {
+    private Match findMatch(ArrayList<ArrayList<EloGroup>> allCombinations, ArrayList<EloGroup> currentGroup) {
         Match bestMatch = null;
         double closestRating = 999999;
 
-        ArrayList<ArrayList<EloGroup>> allCombinations = generateCombinations(processedEloGroups);
 
         outer: for (ArrayList<EloGroup> currentList : allCombinations) {
-            inner: for (ArrayList<EloGroup> currentList2 : allCombinations) {
-                if (currentList.equals(currentList2)) {
+                if (currentList.equals(currentGroup)) {
                     continue;
                 }
                 for (EloGroup group1 : currentList) {
-                    if (currentList2.contains(group1)) {
-                        continue inner;
+                    if (currentGroup.contains(group1)) {
+                        continue outer;
                     }
                 }
-                Match currentMatch = new Match(currentList, currentList2);
+                Match currentMatch = new Match(currentList, currentGroup);
                 countMatches++;
                 if (currentMatch.getAbsRatingDifference() < closestRating) {
                     if (currentMatch.getAbsRatingDifference() < tolerance) {
@@ -118,14 +116,13 @@ public class OverwatchQueue {
                     }
                     bestMatch = currentMatch;
                     closestRating = currentMatch.getAbsRatingDifference();
-                }
             }
         }
 
         return bestMatch;
     }
 
-    private ArrayList<ArrayList<EloGroup>> generateCombinations(ArrayList<EloGroup> processedEloGroups) {
+    private Match getBestMatch(ArrayList<EloGroup> processedEloGroups) {
 
         ArrayList<ArrayList<EloGroup>> subsets = new ArrayList<>();
 
@@ -152,13 +149,21 @@ public class OverwatchQueue {
                             s[i] = s[i - 1] + 1;
                         }
                         ArrayList<EloGroup> tempList = getSubset(processedEloGroups, s);
-                        if (tempList != null && !subsets.contains(tempList)) subsets.add(tempList);
+                        if (tempList != null && !subsets.contains(tempList)) {
+                            Match match = findMatch(subsets, tempList);
+                            if (match != null) {
+                                return match;
+                            }
+                            subsets.add(tempList);
+                        }
                     }
                 }
             }
         }
-        return subsets;
+
+        return null;
     }
+
     private ArrayList<EloGroup> getSubset(ArrayList<EloGroup> processedEloGroups, int[] subset) {
         // generate actual subset by index sequence
         ArrayList<EloGroup> result = new ArrayList<>();
