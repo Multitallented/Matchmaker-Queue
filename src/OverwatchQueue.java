@@ -11,6 +11,35 @@ public class OverwatchQueue {
         new OverwatchQueue();
     }
 
+    private void randJSONArray() {
+        String arr = "[";
+        int randLength = 25;
+        System.out.println(randLength);
+        for (int i=0;i<randLength; i++) {
+            double rand = Math.random();
+            int randSize = 1;
+            if (rand < 0.05) {
+                randSize = 6;
+            } else if (rand < 0.1) {
+                randSize = 5;
+            } else if (rand < 0.2) {
+                randSize = 4;
+            } else if (rand < 0.4) {
+                randSize = 3;
+            } else if (rand < 0.66) {
+                randSize = 2;
+            }
+
+            arr += "[";
+            for (int j=0;j<randSize;j++) {
+                arr += (int) (Math.random() * 800 + 600) + ", ";
+            }
+            arr += "],";
+        }
+        arr += "]";
+        eloGroups = new JSONArray(arr);
+    }
+
     private JSONArray eloGroups = new JSONArray("[" +
             "[1000, 1500, 1300, 800]," +
             "[800]," +
@@ -30,10 +59,13 @@ public class OverwatchQueue {
             "[1200]," +
             "[1150]," +
             "[1493,1307]" +
-        "]");
+            "]");
     private static int countMatches = 0;
+    private static int tolerance = 10;
 
     public OverwatchQueue() {
+        randJSONArray();
+        long timeStart = System.currentTimeMillis();
 
         ArrayList<EloGroup> processedEloGroups = new ArrayList<>();
         for (Object eloGroup : eloGroups) {
@@ -45,6 +77,7 @@ public class OverwatchQueue {
             System.out.println("No matches found");
             return;
         }
+        System.out.println("Time: " + NumberFormat.getNumberInstance().format(System.currentTimeMillis() - timeStart));
         System.out.println("Best Match: " + match.getAbsRatingDifference());
         String msg = "";
         for (EloGroup currentGroup : match.getTeam(1)) {
@@ -80,7 +113,7 @@ public class OverwatchQueue {
                 Match currentMatch = new Match(currentList, currentList2);
                 countMatches++;
                 if (currentMatch.getAbsRatingDifference() < closestRating) {
-                    if (currentMatch.getAbsRatingDifference() == 0) {
+                    if (currentMatch.getAbsRatingDifference() < tolerance) {
                         return currentMatch;
                     }
                     bestMatch = currentMatch;
